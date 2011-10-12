@@ -152,7 +152,7 @@ class ZooKeeperServer(object):
         if data:
             return self._parse(data)
         else:
-            data = self._send_cmd('stat')
+            data = self._send_cmd('srvr')
             return self._parse_stat(data)
 
     def _create_socket(self):
@@ -195,10 +195,11 @@ class ZooKeeperServer(object):
         if version:
             result['zk_version'] = version[version.index(':')+1:].strip()
 
-        # skip all lines until we find the empty one
-        while h.readline().strip(): pass
-
         for line in h.readlines():
+            if not line:
+              # skip all lines until we find the empty one
+              while h.readline().strip(): pass
+
             m = re.match('Latency min/avg/max: (\d+)/(\d+)/(\d+)', line)
             if m is not None:
                 result['zk_min_latency'] = int(m.group(1))
